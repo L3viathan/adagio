@@ -13,10 +13,6 @@ async def print_odds():
         print(i)
         await adagio.sleep(1)
 
-async def main():
-    adagio.schedule(print_evens())
-    adagio.schedule(print_odds())
-
-adagio.run(main)
-
-# adagio.a_wait(print_evens())
+with adagio.group() as g:
+    g.schedule(print_evens())
+    g.schedule(print_odds())
