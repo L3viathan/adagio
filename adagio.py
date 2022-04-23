@@ -1,6 +1,7 @@
 from time import monotonic, sleep as _sleep
 from collections import deque
 
+
 class sleep:
     def __init__(self, n):
         self.n = n
@@ -12,11 +13,7 @@ class sleep:
             yield
 
 
-def run(entrypoint, *args, **kwargs):
-    with group() as g:
-        g.schedule(entrypoint(*args, **kwargs))
-
-class group:
+class Group:
     def __init__(self):
         self.jobs = deque()
 
@@ -24,13 +21,11 @@ class group:
         self.jobs.append(job)
 
     def __enter__(self):
-        print("Entering group")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type:
             raise exc_val
-        print("Waiting for jobs to finish")
         while self.jobs:
             job = self.jobs.popleft()
             try:
@@ -39,8 +34,8 @@ class group:
                 pass
             else:
                 self.jobs.append(job)
-        print("Leaving group")
 
 
 def a_wait(awaitable):
-    return run(lambda: awaitable)
+    with Group() as g:
+        g.schedule(awaitable)
